@@ -21,3 +21,7 @@ Route::get('/', function () {
 Route::get('/get-data', function() {
     dispatch(new \App\Jobs\GetData());
 });
+
+// Route::get('/parse-item-master', function() {
+//     dispatch(new \App\Jobs\ParseItemMaster());
+// });

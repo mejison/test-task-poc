@@ -15,6 +15,13 @@ class CreateItemsTable extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
+            $table->json('ItemMasterHeader')->nullable();
+            $table->json('ItemLocation')->nullable();
+            $table->json('GlobalItem')->nullable();
+            $table->json('ItemList')->nullable();
+            $table->json('WarrantyInfo')->nullable();
+            $table->string('HUBSupplier')->nullable();
+            $table->string('ContentQualityClassCode')->nullable();
             $table->timestamps();
         });
     }

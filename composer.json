@@ -12,6 +12,7 @@
         "laravel/framework": "^8.40",
         "laravel/tinker": "^2.5",
         "league/flysystem-sftp": "~1.0",
+        "orchestra/parser": "^6.1",
         "toin0u/geocoder-laravel": "^4.4"
     },
     "require-dev": {

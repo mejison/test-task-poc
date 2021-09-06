@@ -45,6 +45,8 @@ class GetData implements ShouldQueue
         })->each(function($file) {
             $this->readGZ(storage_path('app' . $file));
         });
+        
+        dispatch(new \App\Jobs\ParseItemMaster());
     }
 
     private function readGZ($file_name) {
