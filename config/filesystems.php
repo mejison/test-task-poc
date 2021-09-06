@@ -52,6 +52,17 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
         ],
 
+        'sftp' => [
+            'driver' => 'sftp',
+            'host' => 'mft.essendant.com',
+            'username' => 'TRINTYPS',
+            'password' => 'TEMP1014',
+            'port' => 22,
+            'timeout' => 30,
+            // 'privateKey' => '',
+            // 'root' => '/',
+        ]
+
     ],
 
     /*
