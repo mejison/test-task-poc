@@ -47,6 +47,8 @@ class GetData implements ShouldQueue
         });
         
         dispatch(new \App\Jobs\ParseItemMaster());
+        dispatch(new \App\Jobs\ParsePartyMaster());
+        dispatch(new \App\Jobs\ParseCatalog());
     }
 
     private function readGZ($file_name) {
