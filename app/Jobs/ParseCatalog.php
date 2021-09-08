@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -13,7 +13,7 @@ use App\Models\CatalogItem;
 
 class ParseCatalog implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $path;
 
@@ -34,6 +34,9 @@ class ParseCatalog implements ShouldQueue
      */
     public function handle()
     {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 0);
+
         $full_path = storage_path("app" . $this->path);
         $data = [];
 
@@ -62,9 +65,14 @@ class ParseCatalog implements ShouldQueue
             
             $this->storeToDB($data);
         }
+        
+        dispatch(new \App\Jobs\PraseProductRelationship());
+        return true;
     }
 
     private function storeToDB($catalogs) {
+        Catalog::truncate();
+
         collect($catalogs)->each(function($catalog) {
             $cat = Catalog::create([
                 'Name' => $catalog['Name'],

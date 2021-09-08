@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,7 +12,7 @@ use App\Models\Party;
 
 class ParsePartyMaster implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $path;
 
@@ -33,6 +33,9 @@ class ParsePartyMaster implements ShouldQueue
      */
     public function handle()
     {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 0);
+        
         $full_path = storage_path("app" . $this->path);
         $data = [];
 
@@ -59,9 +62,13 @@ class ParsePartyMaster implements ShouldQueue
 
             $this->storeToDB($data);
         }
+
+        dispatch(new \App\Jobs\ParseCatalog());
+        return true;
     }
 
     private function storeToDB($data) {
+        Party::truncate();
         collect($data)->each(function($item) {
            Party::create([
                'PartyIDs' => $item['PartyIDs'],

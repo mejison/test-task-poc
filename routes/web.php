@@ -20,8 +20,5 @@ Route::get('/', function () {
 
 Route::get('/get-data', function() {
     dispatch(new \App\Jobs\GetData());
+    return redirect('/');
 });
-
-// Route::get('/parse-catalog', function() {
-//     dispatch(new \App\Jobs\ParseCatalog());
-// });

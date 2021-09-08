@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,7 +12,7 @@ use App\Models\Item;
 
 class ParseItemMaster implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $path;
     /**
@@ -32,6 +32,10 @@ class ParseItemMaster implements ShouldQueue
      */
     public function handle()
     {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 0);
+        set_time_limit(0);
+
         $full_path = storage_path("app" . $this->path);
         $data = [];
 
@@ -60,9 +64,13 @@ class ParseItemMaster implements ShouldQueue
 
             $this->storeToDB($data);
         }
+
+        dispatch(new \App\Jobs\ParsePartyMaster())->delay(now()->addMinutes(1));
+        return true;
     }
 
     public function storeToDB($data) {
+        Item::truncate();
        collect($data)->each(function($item) {
         Item::create([
             'ItemMasterHeader' => $item['ItemMasterHeader'],

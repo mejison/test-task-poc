@@ -10,6 +10,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Bus\Batch;
+use Illuminate\Support\Facades\Bus;
+
 class GetData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -31,6 +34,10 @@ class GetData implements ShouldQueue
      */
     public function handle()
     {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 0);
+        set_time_limit(0);
+
         $allowedFiles = [
             "/xml/SyncCatalog.xml.gz",
             "/xml/SyncItemMaster.xml.gz",
@@ -47,8 +54,7 @@ class GetData implements ShouldQueue
         });
         
         dispatch(new \App\Jobs\ParseItemMaster());
-        dispatch(new \App\Jobs\ParsePartyMaster());
-        dispatch(new \App\Jobs\ParseCatalog());
+        return true;
     }
 
     private function readGZ($file_name) {
