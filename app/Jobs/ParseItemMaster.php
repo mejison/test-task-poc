@@ -88,20 +88,74 @@ class ParseItemMaster implements ShouldQueue
         $freightClassification = $node->FreightClassification->children('http://www.openapplications.org/oagis/9');
         $itemMasterHeader = $node->children('http://www.openapplications.org/oagis/9');
         $packaging = $node->Packaging->children('http://www.openapplications.org/oagis/9');
-        $manufacturerItemID = $itemMasterHeader->ManufacturerItemID->children('http://www.openapplications.org/oagis/9');
         
         $itemIds = [];
+        $manufacturerItemIds = [];
+        $classifications = [];
+        $specifications = [];
+
         foreach($itemMasterHeader->ItemID as $itemId) {
-            $itemIds[] = "" . $itemId->ID;
+            $itemIds[] = [
+                'agencyRole' => "" . $itemId->Attributes()['agencyRole'],
+                'ID' => "" . $itemId->ID,
+            ];
+        }
+
+        foreach($itemMasterHeader->ManufacturerItemID as $manufacturerItemID) {
+            $manufacturerItemID = $manufacturerItemID->children('http://www.openapplications.org/oagis/9');
+            $manufacturerItemIds[] = [
+                'schemeAgencyName' => '' . $manufacturerItemID->Attributes()['schemeAgencyName'],
+                'schemeAgencyID' => '' . $manufacturerItemID->Attributes()['schemeAgencyID'],
+                'value' => '' . $manufacturerItemID->ID
+            ];
+        }
+
+        foreach($node->Classification as $classification) {
+            $codes = [];
+            foreach($classification->Codes as $code) {
+                $code = $code->children('http://www.openapplications.org/oagis/9');
+                $codes[] = [
+                    'sequence' => "" . $code->Attributes()['sequence'],
+                    'listName' => "" . $code->Attributes()['listName'],
+                    'listID' => "" . $code->Attributes()['listID'],
+                    'name' => "" . $code->Attributes()['name'],
+                    'value' => "" . $code->Code
+                ];
+            }
+            $classifications[] = [
+                'type' => "" . $classification->Attributes()['type'],
+                'Codes' => $codes,
+            ];
+        }
+
+        foreach($itemMasterHeader->Specification as $specification) {
+            $specification = $specification->children('http://www.openapplications.org/oagis/9');
+            $properties = [];
+            foreach($specification as $property) {
+                $property = $property->children('http://www.openapplications.org/oagis/9');
+                $userArea = $property->UserArea ? $property->UserArea->children('http://www.ussco.com/oagis/0') : false;
+                
+                $properties[] = [
+                    'NameValue' => [
+                        'name' => $property->NameValue ? "" . $property->NameValue->Attributes()['name'] : '',
+                        'value' => "" . $property->NameValue,
+                    ],
+                    'UserArea' => [
+                        'FilterableNavigationPriority' => $userArea ? "" . $userArea->FilterableNavigationPriority : ''
+                    ]
+                ];
+            }
+
+            $specifications[] = [
+                'Property' => $properties,
+            ];
         }
 
         return [
             'ItemID' => $itemIds,
-            'ManufacturerItemID' => [
-                'schemeAgencyName' => '' . $manufacturerItemID->Attributes()['schemeAgencyName'],
-                'schemeAgencyID' => '' . $manufacturerItemID->Attributes()['schemeAgencyID'],
-                'value' => '' . $itemMasterHeader->ManufacturerItemID->ID
-            ],
+            'ManufacturerItemID'  => $manufacturerItemIds,
+            'Classification'  => $classifications,
+            'Specification'  => $specifications,
             'Packaging' => [
                 'ID' => '' . $packaging->ID,
                 'PerPackageQuantity' => '' . $packaging->PerPackageQuantity,

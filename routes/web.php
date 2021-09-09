@@ -22,3 +22,9 @@ Route::get('/get-data', function() {
     dispatch(new \App\Jobs\GetData());
     return redirect('/');
 });
+
+
+Route::get('/parse', function() {
+    dispatch(new \App\Jobs\ParseItemMaster());
+    return redirect('/');
+});
