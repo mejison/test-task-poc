@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 
+use App\Http\Controllers\OrderController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -16,9 +17,9 @@ use App\Http\Controllers\ClientController;
 |
 */
 
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
-Route::post('register', [AuthController::class, 'signup']);
-Route::get('accounts', [ClientController::class, 'all']);
+Route::group(['prefix' => 'order', 'namespace' => ""], function() {
+    Route::get('/', [OrderController::class, 'all']);
+    Route::get('{order}', [OrderController::class, 'one']);
+    Route::put('{order}', [OrderController::class, 'update']);
+    Route::delete('{order}', [OrderController::class, 'delete']);
+});
